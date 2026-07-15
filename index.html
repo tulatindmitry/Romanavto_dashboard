@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>РоманАвто — дашборд отделов</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:#eef1f5;color:#1c2530;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-size:14px}
+.wrap{max-width:1080px;margin:0 auto;padding:18px}
+header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px}
+h1{font-size:21px;margin:0}
+.upd{color:#6b7684;font-size:12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 4px}
+.tabs button{border:1px solid #d6deea;background:#fff;color:#3a4655;padding:9px 15px;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer}
+.tabs button.active{background:#1c62d6;color:#fff;border-color:#1c62d6}
+.tab{display:none}
+.tab.show{display:block;animation:f .2s}
+@keyframes f{from{opacity:.3}to{opacity:1}}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:14px 0}
+.kpi{background:#fff;border:1px solid #e3e8ef;border-radius:12px;padding:11px 13px}
+.kpi .v{font-size:20px;font-weight:700}
+.kpi .l{font-size:11px;color:#6b7684;margin-top:2px}
+.kpi .d{font-size:11px;font-weight:600;margin-top:3px}
+.up{color:#1e8e4e}.down{color:#c0392b}.flat{color:#93a0af}
+.kpi.warn .v{color:#c0392b}.kpi.good .v{color:#1e8e4e}
+.card{background:#fff;border:1px solid #e3e8ef;border-radius:14px;padding:16px 18px;margin-top:14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.card h3{margin:0 0 10px;font-size:14px;color:#3a4655}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+.chartbox{position:relative;height:240px}
+.small{font-size:12px;color:#6b7684;margin-top:6px}
+.src{font-size:11px;color:#93a0af;margin-top:2px}
+.prob{border-left:4px solid #ccc;background:#fafbfc;border-radius:8px;padding:10px 12px;margin:8px 0}
+.prob.red{border-color:#c0392b;background:#fdf3f2}
+.prob.amber{border-color:#e08a1e;background:#fff8ee}
+.prob.blue{border-color:#1c62d6;background:#eef4ff}
+.prob .t{font-weight:700}
+.prob .m{font-size:12.5px;color:#55606e;margin:2px 0 4px}
+.prob .a{font-size:12.5px}
+.prob .a b{color:#1e6b3a}
+.sev{font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;vertical-align:middle;margin-left:6px}
+.sev.red{background:#c0392b;color:#fff}.sev.amber{background:#e08a1e;color:#fff}.sev.blue{background:#1c62d6;color:#fff}
+table.mt{width:100%;border-collapse:collapse;font-size:13px}
+table.mt th,table.mt td{border:1px solid #e3e8ef;padding:7px 10px;text-align:center}
+table.mt th{background:#f4f7fb;font-weight:700}
+table.mt td.l{text-align:left;font-weight:600}
+.pl{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #eef1f5}
+.pl input{margin-top:3px;width:16px;height:16px}
+.pl .who{font-size:11px;font-weight:700;color:#fff;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.w-prod{background:#1e8e4e}.w-mkt{background:#c2247a}.w-priem{background:#1c62d6}.w-all{background:#6b7684}
+.pl .txt{font-size:13.5px}
+.focus{background:#fdf3f2;border:1px solid #f3c0ba;border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:13.5px}
+.focus b{color:#c0392b}
+footer{color:#93a0af;font-size:11px;margin-top:18px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🚘 РоманАвто — дашборд отделов</h1>
+    <div class="upd">Обновлено: <b id="upd">14.07.2026</b> · сток · CRM · загон-табель · трекер продаж</div>
+  </header>
+
+  <div class="tabs">
+    <button class="active" data-tab="obzor">📊 Обзор</button>
+    <button data-tab="priem">🚗 Приёмка</button>
+    <button data-tab="mkt">📣 Маркетинг</button>
+    <button data-tab="prod">💰 Продажи</button>
+    <button data-tab="plan">✅ Планёрка</button>
+    <button data-tab="month">📅 По месяцам</button>
+  </div>
+
+  <!-- ОБЗОР -->
+  <div class="tab show" id="tab-obzor">
+    <div class="kpis">
+      <div class="kpi"><div class="v">9</div><div class="l">продаж (июль)</div><div class="d flat">кредит 7 · допы 0</div></div>
+      <div class="kpi warn"><div class="v">52</div><div class="l">возвратов (июль)</div><div class="d down">≥ приёмок (51)</div></div>
+      <div class="kpi"><div class="v">82</div><div class="l">авто в стоке</div><div class="d down">18 мёртвых</div></div>
+      <div class="kpi warn"><div class="v">480</div><div class="l">лидов без продавца</div><div class="d down">из 1254</div></div>
+      <div class="kpi"><div class="v">2 345</div><div class="l">вх. звонков (июль)</div><div class="d flat">визитов 295</div></div>
+    </div>
+    <div class="card">
+      <h3>🎯 Топ-проблемы компании</h3>
+      <div class="prob red"><span class="t">Приёмка не перекрывает возвраты</span><span class="sev red">критично</span>
+        <div class="m">За июль приняли 51 авто, вернули 52. Сток не растёт, а «прокручивается». По месяцам возвраты: май 97, июнь 126.</div>
+        <div class="a">→ <b>Действие:</b> обзвон 10 последних возвратов — причина; на приёмке фиксировать реальную цену владельца и держать договором.</div></div>
+      <div class="prob red"><span class="t">480 лидов без продавца</span><span class="sev red">критично</span>
+        <div class="m">Из 1254 лидов 480 без назначенного продавца — оплаченный трафик не обрабатывается. Визитов 229 назначено, результат не отслеживается.</div>
+        <div class="a">→ <b>Действие:</b> распределить лиды по продавцам ежедневно, заполнять «Результат» по визитам.</div></div>
+      <div class="prob red"><span class="t">Допы не продаём: 0 из плана 42</span><span class="sev red">критично</span>
+        <div class="m">Гарантия/ВЭК = 0 продано третий месяц подряд. Это чистая упущенная маржа (план 10,5 млн ₸).</div>
+        <div class="a">→ <b>Действие:</b> ввести обязательное предложение допов в каждой сделке, KPI продавцам.</div></div>
+      <div class="prob amber"><span class="t">Мёртвый сток: 18 авто, средний возраст 56 дн</span><span class="sev amber">внимание</span>
+        <div class="m">Highlander 264 дня и не на Kolesa. Уценки-колонки завели, но не заполняют.</div>
+        <div class="a">→ <b>Действие:</b> уценка по графику, фиксировать её в новой колонке; неликвид — возврат владельцу.</div></div>
+    </div>
+    <div class="small">Отделы: <b>Приёмка</b> — звонки, приёмы, возвраты, дни на стоке, уценки. <b>Маркетинг</b> — трафик и лиды без продавца. <b>Продажи</b> — лиды с продавцом и сделки.</div>
+  </div>
+
+  <!-- ПРИЁМКА -->
+  <div class="tab" id="tab-priem">
+    <div class="kpis">
+      <div class="kpi"><div class="v">2 031</div><div class="l">звонков (июль)</div></div>
+      <div class="kpi"><div class="v">46</div><div class="l">приёмов (июль)</div></div>
+      <div class="kpi warn"><div class="v">2,26%</div><div class="l">конверсия зв→приём</div><div class="d down">бенчмарк 4–5%</div></div>
+      <div class="kpi warn"><div class="v">52</div><div class="l">возвратов (июль)</div><div class="d down">≥ приёмок</div></div>
+      <div class="kpi"><div class="v">20 дн</div><div class="l">средн. на стоке</div><div class="d down">18 мёртвых (56 дн)</div></div>
+      <div class="kpi"><div class="v">0</div><div class="l">уценок внесено</div><div class="d flat">колонки завели</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3>Звонки и приёмы по дням (июль)</h3><div class="chartbox"><canvas id="chIntakeDaily"></canvas></div><div class="src">Источник: загон-табель</div></div>
+      <div class="card"><h3>Конверсия зв→приём по менеджерам, %</h3><div class="chartbox"><canvas id="chIntakeMgr"></canvas></div><div class="src">Стажёр — вместо Исы</div></div>
+    </div>
+    <div class="card">
+      <h3>🔴 Проблемы и точки роста — приёмка</h3>
+      <div class="prob red"><span class="t">Возвраты съедают приёмку</span><span class="sev red">критично</span>
+        <div class="m">Приняли 51 — вернули 52. Чистый прирост стока ≈ 0. Работа отдела уходит «в трубу».</div>
+        <div class="a">→ <b>Действие:</b> заполнять колонку «Возврат» по менеджерам (сейчас 0) — видно, чьи приёмы возвращаются; обзвон причин возвратов.</div></div>
+      <div class="prob red"><span class="t">Роман: конверсия 1,39%</span><span class="sev red">критично</span>
+        <div class="m">216 звонков → 3 приёма. Худший в команде (эталон Шохрух/Канат ~2,9%).</div>
+        <div class="a">→ <b>Действие:</b> разбор звонков, дневной план по приёмам; дедлайн 10 авто за 7 дней (уже поставлен).</div></div>
+      <div class="prob amber"><span class="t">Уценки не фиксируют</span><span class="sev amber">внимание</span>
+        <div class="m">Колонки «Уценка» и «Дата уценки» завели, но заполнены нулями — по мёртвому стоку не видно, снижали ли цену.</div>
+        <div class="a">→ <b>Действие:</b> при каждом снижении вносить сумму и дату; тогда видно, какие авто «морозят» без действий.</div></div>
+      <div class="prob blue"><span class="t">Эталон — Шохрух и Канат</span><span class="sev blue">рост</span>
+        <div class="m">2,92% и 2,91% при большом объёме.</div>
+        <div class="a">→ <b>Действие:</b> их звонки — в обучение стажёру и Роману.</div></div>
+    </div>
+  </div>
+
+  <!-- МАРКЕТИНГ -->
+  <div class="tab" id="tab-mkt">
+    <div class="kpis">
+      <div class="kpi"><div class="v">2 345</div><div class="l">вх. звонков (июль)</div></div>
+      <div class="kpi"><div class="v">295</div><div class="l">визитов (июль)</div></div>
+      <div class="kpi"><div class="v">185</div><div class="l">звонков с Kolesa</div></div>
+      <div class="kpi warn"><div class="v">480</div><div class="l">лидов без продавца</div><div class="d down">из 1254</div></div>
+      <div class="kpi"><div class="v">1 254</div><div class="l">лидов всего (CRM)</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3>Трафик по дням: вх. звонки и визиты (июль)</h3><div class="chartbox"><canvas id="chTraffic"></canvas></div><div class="src">Источник: трекер продаж</div></div>
+      <div class="card"><h3>Лиды по каналам</h3><div class="chartbox"><canvas id="chChannels"></canvas></div><div class="src">Источник: CRM</div></div>
+    </div>
+    <div class="card">
+      <h3>🔴 Проблемы и точки роста — маркетинг</h3>
+      <div class="prob red"><span class="t">480 лидов без продавца</span><span class="sev red">критично</span>
+        <div class="m">Трафик есть (2345 звонков, 295 визитов), но 480 лидов из 1254 никто не ведёт — это и есть зона маркетинга: лид без продавца.</div>
+        <div class="a">→ <b>Действие:</b> ежедневно передавать лиды в продажи (назначать продавца), не копить.</div></div>
+      <div class="prob amber"><span class="t">Трафик большой, конверсия в продажу низкая</span><span class="sev amber">внимание</span>
+        <div class="m">2345 входящих → 9 продаж (0,4%); 295 визитов → 9 (3,1%). Трафик «сливается».</div>
+        <div class="a">→ <b>Действие:</b> отмечать источник у каждого лида и результат визита, чтобы видеть, какой канал реально продаёт.</div></div>
+      <div class="prob blue"><span class="t">Kolesa и TikTok — рабочие каналы</span><span class="sev blue">рост</span>
+        <div class="m">185 звонков с Kolesa за июль; по словам отдела ~80% продаж с TikTok, но в CRM это не отражается.</div>
+        <div class="a">→ <b>Действие:</b> вести источник в CRM и усиливать то, что реально конвертит.</div></div>
+    </div>
+  </div>
+
+  <!-- ПРОДАЖИ -->
+  <div class="tab" id="tab-prod">
+    <div class="kpis">
+      <div class="kpi"><div class="v">9</div><div class="l">продаж (июль)</div></div>
+      <div class="kpi"><div class="v">7</div><div class="l">в кредит</div><div class="d flat">78%</div></div>
+      <div class="kpi warn"><div class="v">0</div><div class="l">допов продано</div><div class="d down">план 42</div></div>
+      <div class="kpi warn"><div class="v">3,1%</div><div class="l">визит → продажа</div><div class="d down">цель 12%</div></div>
+      <div class="kpi"><div class="v">~294</div><div class="l">лидов с продавцом</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3>Продажи по продажникам (июль)</h3><div class="chartbox"><canvas id="chSellers"></canvas></div><div class="src">Источник: трекер продаж</div></div>
+      <div class="card"><h3>Продажи по дням (июль)</h3><div class="chartbox"><canvas id="chSalesDaily"></canvas></div></div>
+    </div>
+    <div class="card">
+      <h3>🔴 Проблемы и точки роста — продажи</h3>
+      <div class="prob red"><span class="t">Допы = 0 (упущенная маржа)</span><span class="sev red">критично</span>
+        <div class="m">Гарантия/ВЭК не продаётся третий месяц. План 42 шт / 10,5 млн ₸ — факт 0.</div>
+        <div class="a">→ <b>Действие:</b> обязательное предложение допа в каждой сделке + KPI и бонус продавцу за доп.</div></div>
+      <div class="prob red"><span class="t">Визит → продажа всего 3,1%</span><span class="sev red">критично</span>
+        <div class="m">Из 295 визитов — 9 продаж. Люди доезжают, но не покупают (банки/цена/отработка).</div>
+        <div class="a">→ <b>Действие:</b> фиксировать причину незакрытия визита; усилить работу с отказами по банкам (вытаскивать ПВ).</div></div>
+      <div class="prob amber"><span class="t">Часть продавцов по нулям</span><span class="sev amber">внимание</span>
+        <div class="m">Даурен 9, Влад 6, Шахбоз 4 — тянут; Дамир 09 и Иван — 0 за месяц.</div>
+        <div class="a">→ <b>Действие:</b> разобрать нули, перераспределить лиды на тех, кто закрывает.</div></div>
+      <div class="prob blue"><span class="t">Кредит — сильная сторона (78%)</span><span class="sev blue">рост</span>
+        <div class="m">Почти все сделки кредитные — есть база для допов (страховки идут с кредитом).</div>
+        <div class="a">→ <b>Действие:</b> привязать доп к кредитной сделке по умолчанию.</div></div>
+    </div>
+  </div>
+
+  <!-- ПЛАНЁРКА -->
+  <div class="tab" id="tab-plan">
+    <div class="focus">🔥 <b>Фокус недели:</b> остановить отток (возвраты ≥ приёмок), разгрести 480 лидов без продавца и начать продавать допы (0 → план). Замкнуть воронку — статус «Продано» + источник в CRM.</div>
+    <div class="card">
+      <h3>✅ Задачи с планёрки — 14.07</h3>
+      <div class="pl"><input type="checkbox"><span class="who w-priem">Приёмка</span><span class="txt">Заполнять колонку «Возврат» по менеджерам в табеле (сейчас 0) — видеть, чьи приёмы возвращаются.</span></div>
+      <div class="pl"><input type="checkbox"><span class="who w-priem">Приёмка</span><span class="txt">Роман (конв. 1,39%): разбор звонков, дедлайн 10 авто / 7 дней.</span></div>
+      <div class="pl"><input type="checkbox"><span class="who w-priem">Приёмка</span><span class="txt">Вносить уценки в новую колонку (сумма+дата) по мёртвому стоку; Highlander (264 дн) — решение.</span></div>
+      <div class="pl"><input type="checkbox"><span class="who w-priem">Приёмка</span><span class="txt">Нанять/ввести стажёра вместо Исы, довести до нормы.</span></div>
+      <div class="pl"><input type="checkbox"><span class="who w-mkt">Маркетинг</span><span class="txt">Ежедневно передавать лиды в продажи (назначать продавца) — разгрести 480 без продавца.</span></div>
+      <div class="pl"><input type="checkbox"><span class="who w-mkt">Маркетинг</span><span class="txt">Вести источник лида в CRM (Kolesa/TikTok/Инста) — понять, что продаёт.</span></div>
+      <div class="pl"><input type="checkbox"><span class="who w-prod">Продажи</span><span class="txt">Продавать допы: обязательное предложение в каждой сделке + KPI (сейчас 0 из 42).</span></div>
+      <div class="pl"><input type="checkbox"><span class="who w-prod">Продажи</span><span class="txt">Фиксировать «Результат» по 229 визитам; разбор, почему визит не закрылся.</span></div>
+      <div class="pl"><input type="checkbox"><span class="who w-prod">Продажи</span><span class="txt">Разобрать нули (Дамир 09, Иван), перераспределить лиды.</span></div>
+      <div class="pl"><input type="checkbox"><span class="who w-prod">Продажи</span><span class="txt">Ставить статус «Продано» в CRM при сделке — замкнуть воронку.</span></div>
+      <div class="pl"><input type="checkbox"><span class="who w-all">Ты</span><span class="txt">Свести приёмку/продажи/маркетинг в единый отчёт эффективности (по отделам).</span></div>
+    </div>
+    <div class="small">Собрано из планёрки 14.07. Далее пересобирается автоматически каждое утро.</div>
+  </div>
+
+  <!-- ПО МЕСЯЦАМ -->
+  <div class="tab" id="tab-month">
+    <div class="card">
+      <h3>📅 Сравнение по месяцам</h3>
+      <table class="mt">
+        <tr><th>Показатель</th><th>Май</th><th>Июнь</th><th>Июль*</th><th>Тренд</th></tr>
+        <tr><td class="l">Продажи (авто)</td><td>30</td><td>30</td><td>9*</td><td class="down">↓</td></tr>
+        <tr><td class="l">Возвраты</td><td>97</td><td>126</td><td>52*</td><td class="down">↑ плохо</td></tr>
+        <tr><td class="l">Приёмка (авто)</td><td>183</td><td>129</td><td>51*</td><td class="down">↓</td></tr>
+        <tr><td class="l">Входящие звонки</td><td>1 404</td><td>4 499</td><td>2 345*</td><td class="up">↑</td></tr>
+        <tr><td class="l">Визиты</td><td>549</td><td>593</td><td>295*</td><td class="flat">≈</td></tr>
+        <tr><td class="l">Допы (шт)</td><td>0</td><td>0</td><td>0</td><td class="down">план 42</td></tr>
+        <tr><td class="l">Кредит из продаж</td><td>97%</td><td>100%</td><td>78%</td><td class="flat">≈</td></tr>
+      </table>
+      <div class="small">*Июль — на 14.07 (неполный). Источники: продажи/возвраты — сток; приёмка/трафик/допы — трекер; лиды — CRM.</div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3>Продажи vs возвраты по месяцам</h3><div class="chartbox"><canvas id="chMonthSales"></canvas></div></div>
+      <div class="card"><h3>Приёмка и визиты по месяцам</h3><div class="chartbox"><canvas id="chMonthIntake"></canvas></div></div>
+    </div>
+    <div class="card">
+      <h3>🔵 Тренды роста</h3>
+      <div class="prob red"><span class="t">Приёмка и продажи снижаются, возвраты высокие</span><span class="sev red">критично</span>
+        <div class="m">Приёмка 183→129→51, продажи ~30→30→9 (неполный июль), а возвраты держатся высокими. Оборот стока отрицательный.</div>
+        <div class="a">→ <b>Действие:</b> цель квартала — возвраты/приёмка &lt; 0,5 и рост продаж; сделать это метрикой отделов.</div></div>
+    </div>
+  </div>
+
+  <footer>РоманАвто · рабочий дашборд · источники: сток, CRM, загон-табель, трекер продаж</footer>
+</div>
+
+<script>
+Chart.defaults.font.family='-apple-system,Segoe UI,Roboto,Arial';
+Chart.defaults.color='#5b6673';
+const built={}; const O={responsive:true,maintainAspectRatio:false};
+function build(tab){
+ if(built[tab])return; built[tab]=true;
+ if(tab==='priem'){
+   const d=['01','02','03','04','05','06','07','08','09','10','11','12','13'];
+   new Chart(chIntakeDaily,{data:{labels:d,datasets:[
+     {type:'line',label:'Звонки',data:[0,348,206,234,285,187,222,101,108,59,73,89,119],borderColor:'#1c62d6',backgroundColor:'rgba(28,98,214,.08)',tension:.3,fill:true,yAxisID:'y'},
+     {type:'bar',label:'Приёмы',data:[0,3,3,7,1,0,2,8,5,4,9,1,3],backgroundColor:'#e08a1e',yAxisID:'y1'}]},
+     options:{...O,scales:{y:{position:'left',title:{display:true,text:'звонки'}},y1:{position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'приёмы'}}}}});
+   new Chart(chIntakeMgr,{type:'bar',data:{labels:['Шохрух','Канат','Стажёр','Александр','Алексей','Роман'],
+     datasets:[{data:[2.92,2.91,2.02,1.83,1.81,1.39],backgroundColor:['#1e8e4e','#1e8e4e','#e08a1e','#e08a1e','#e08a1e','#c0392b']}]},
+     options:{...O,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'%'}}}}});
+ }
+ if(tab==='mkt'){
+   const d=['01','02','03','04','05','06','07','08','09','10','11','12','13'];
+   new Chart(chTraffic,{data:{labels:d,datasets:[
+     {type:'line',label:'Вх. звонки',data:[122,127,142,144,133,220,195,135,198,212,174,179,164],borderColor:'#c2247a',backgroundColor:'rgba(194,36,122,.08)',tension:.3,fill:true,yAxisID:'y'},
+     {type:'bar',label:'Визиты',data:[15,15,26,25,22,37,21,24,20,27,17,23,23],backgroundColor:'#1c62d6',yAxisID:'y1'}]},
+     options:{...O,scales:{y:{position:'left',title:{display:true,text:'звонки'}},y1:{position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'визиты'}}}}});
+   new Chart(chChannels,{type:'doughnut',data:{labels:['Колёса','Другое','Тикток','Инста','Соц.сети'],
+     datasets:[{data:[165,68,10,3,1],backgroundColor:['#1c62d6','#8e94a3','#111','#c2247a','#1e8e4e']}]},
+     options:{...O,plugins:{legend:{position:'bottom'}}}});
+ }
+ if(tab==='prod'){
+   new Chart(chSellers,{type:'bar',data:{labels:['Даурен','Влад','Шахбоз','Бейбарыс','Дамир 14','Мадина','Дамир 09','Иван'],
+     datasets:[{data:[9,6,4,3,3,1,0,0],backgroundColor:'#1e8e4e'}]},
+     options:{...O,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'продаж'}}}}});
+   const d=['01','02','03','04','05','06','07','08','09','10','11','12','13'];
+   new Chart(chSalesDaily,{type:'bar',data:{labels:d,datasets:[{label:'Продажи',data:[0,0,0,0,0,0,4,2,1,0,0,1,1],backgroundColor:'#1e8e4e'}]},
+     options:{...O,plugins:{legend:{display:false}}}});
+ }
+ if(tab==='month'){
+   new Chart(chMonthSales,{data:{labels:['Май','Июнь','Июль*'],datasets:[
+     {type:'bar',label:'Продажи',data:[30,30,9],backgroundColor:'#1e8e4e',yAxisID:'y'},
+     {type:'bar',label:'Возвраты',data:[97,126,52],backgroundColor:'#c0392b',yAxisID:'y'}]},
+     options:{...O,scales:{y:{title:{display:true,text:'авто'}}}}});
+   new Chart(chMonthIntake,{data:{labels:['Май','Июнь','Июль*'],datasets:[
+     {type:'bar',label:'Приёмка',data:[183,129,51],backgroundColor:'#e08a1e',yAxisID:'y'},
+     {type:'line',label:'Визиты',data:[549,593,295],borderColor:'#1c62d6',backgroundColor:'#1c62d6',tension:.3,yAxisID:'y1'}]},
+     options:{...O,scales:{y:{position:'left',title:{display:true,text:'приёмка'}},y1:{position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'визиты'}}}}});
+ }
+}
+document.querySelectorAll('.tabs button').forEach(b=>{
+ b.onclick=()=>{
+   document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));
+   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('show'));
+   b.classList.add('active'); const t=b.dataset.tab;
+   document.getElementById('tab-'+t).classList.add('show'); build(t);
+ };
+});
+</script>
+</body>
+</html>
